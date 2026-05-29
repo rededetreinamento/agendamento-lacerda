@@ -1,1 +1,132 @@
-init
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendar Sessão · Lacerda Marketing com IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0d1b35;--blue:#1a3a6b;--mid:#2563eb;--accent:#f59e0b;--green:#059669;--light:#f0f6ff;--border:#dbeafe;--text:#1e293b;--muted:#64748b;--white:#ffffff;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
+.hero{background:linear-gradient(160deg,#0d1b35 0%,#1a3a6b 60%,#0d1b35 100%);padding:3rem 1.5rem 2rem;text-align:center;position:relative;overflow:hidden;}
+.tag{display:inline-flex;align-items:center;gap:.4rem;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.35);color:var(--accent);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.35rem 1rem;border-radius:99px;margin-bottom:1.2rem;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,5vw,2.6rem);line-height:1.2;margin-bottom:.6rem;}
+.hero h1 em{color:var(--accent);font-style:italic}
+.hero p{color:rgba(255,255,255,.65);font-size:.95rem;line-height:1.7;max-width:480px;margin:0 auto 1.5rem}
+.chips{display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;margin-bottom:0}
+.chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.8);font-size:.78rem;padding:.3rem .85rem;border-radius:99px;}
+.main{max-width:640px;margin:0 auto;padding:2rem 1.2rem 5rem}
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;}
+.month-nav h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--accent);}
+.nav-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.7);border-radius:8px;padding:.4rem .9rem;cursor:pointer;font-size:1rem;transition:all .18s;}
+.weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:.3rem;margin-bottom:.4rem;}
+.weekdays span{text-align:center;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.35);padding:.3rem 0;}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:.3rem;margin-bottom:1.8rem;}
+.day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:.88rem;font-weight:500;cursor:default;color:rgba(255,255,255,.25);transition:all .18s;}
+.day.past{color:rgba(255,255,255,.15)}
+.day.available{background:rgba(37,99,235,.2);border:1px solid rgba(37,99,235,.4);color:var(--white);cursor:pointer;font-weight:700;}
+.day.available:hover{background:rgba(37,99,235,.45);border-color:var(--mid);transform:scale(1.08);box-shadow:0 4px 16px rgba(37,99,235,.4);}
+.day.selected{background:var(--accent);border:1px solid var(--accent);color:var(--navy);font-weight:700;box-shadow:0 4px 16px rgba(245,158,11,.45);transform:scale(1.08);}
+.day.today-mark::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent);}
+.slots-title{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.8rem;}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.8rem}
+.slot{border:1.5px solid rgba(255,255,255,.12);border-radius:12px;padding:1rem;cursor:pointer;text-align:center;transition:all .2s;background:rgba(255,255,255,.04);}
+.slot:hover{border-color:var(--mid);background:rgba(37,99,235,.15)}
+.slot.selected{border-color:var(--accent);background:rgba(245,158,11,.12);}
+.slot .time{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--white);margin-bottom:.2rem}
+.slot .dur{font-size:.75rem;color:rgba(255,255,255,.45)}
+.slot.selected .time{color:var(--accent)}
+.info-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:1.2rem 1.4rem;margin-bottom:1.5rem;display:none;}
+.info-box.show{display:block}
+.info-box .row{display:flex;gap:.6rem;align-items:center;margin-bottom:.5rem;font-size:.88rem}
+.info-box .lbl{color:rgba(255,255,255,.45);font-size:.78rem;min-width:80px}
+.info-box .val{color:var(--white);font-weight:700}
+.btn-confirm{width:100%;background:var(--green);color:#fff;border:none;border-radius:12px;padding:1rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;display:none;}
+.btn-confirm.show{display:block}
+.divider{height:1px;background:rgba(255,255,255,.08);margin:1.5rem 0}
+.hint-box{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:.9rem 1.1rem;font-size:.82rem;color:rgba(255,255,255,.65);line-height:1.6;margin-bottom:1.2rem;}
+.hint-box strong{color:var(--accent)}
+.success{display:none;text-align:center;padding:2rem 1rem}
+.success.show{display:block}
+.check-circle{width:90px;height:90px;background:rgba(5,150,105,.2);border:2px solid var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin:0 auto 1.5rem;}
+.success h2{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:.7rem}
+.success p{color:rgba(255,255,255,.6);font-size:.92rem;line-height:1.7;max-width:380px;margin:0 auto 1.5rem}
+.confirm-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:1.3rem 1.5rem;max-width:380px;margin:0 auto;text-align:left;}
+.confirm-card .row{display:flex;gap:.5rem;align-items:flex-start;margin-bottom:.5rem;font-size:.88rem}
+.confirm-card .lbl{color:rgba(255,255,255,.4);min-width:90px;font-size:.8rem}
+.confirm-card .val{color:var(--white);font-weight:700}
+@media(max-width:420px){.slots{grid-template-columns:1fr}.day{font-size:.78rem}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="tag">📅 Agendamento · Diagnóstico de Marketing</div>
+  <h1>Escolha sua data<br>e <em>hora</em> da sessão</h1>
+  <p>Sessão de 2h com Lacerda — análise completa do seu marketing e entrega do plano de ação em PDF na hora.</p>
+  <div class="chips">
+    <div class="chip">⏱ 2 horas</div>
+    <div class="chip">📋 Plano PDF incluso</div>
+    <div class="chip">💬 Online ou presencial</div>
+  </div>
+</div>
+<div class="main">
+  <div class="hint-box"><strong>Disponibilidade:</strong> Terças e Quartas-feiras, às <strong>9h</strong> ou <strong>15h</strong>. Selecione o dia no calendário e depois escolha o horário.</div>
+  <div class="month-nav">
+    <button class="nav-btn" onclick="mudarMes(-1)">‹</button>
+    <h2 id="mes-titulo"></h2>
+    <button class="nav-btn" onclick="mudarMes(1)">›</button>
+  </div>
+  <div class="weekdays"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+  <div class="cal" id="cal"></div>
+  <div id="slots-wrap" style="display:none">
+    <div class="divider"></div>
+    <div class="slots-title">Escolha o horário para <span id="data-selecionada"></span></div>
+    <div class="slots">
+      <div class="slot" id="slot-9" onclick="selSlot(9)"><div class="time">09:00</div><div class="dur">até às 11h00</div></div>
+      <div class="slot" id="slot-15" onclick="selSlot(15)"><div class="time">15:00</div><div class="dur">até às 17h00</div></div>
+    </div>
+  </div>
+  <div class="info-box" id="resumo">
+    <div class="row"><span class="ico">📅</span><span class="lbl">Data</span><span class="val" id="r-data"></span></div>
+    <div class="row"><span class="ico">⏰</span><span class="lbl">Horário</span><span class="val" id="r-hora"></span></div>
+    <div class="row"><span class="ico">⏱</span><span class="lbl">Duração</span><span class="val">2 horas · Plano PDF na hora</span></div>
+    <div class="row"><span class="ico">👨‍💼</span><span class="lbl">Consultor</span><span class="val">Lacerda Machado</span></div>
+  </div>
+  <button class="btn-confirm" id="btn-confirm" onclick="confirmar()">✅ Confirmar agendamento via WhatsApp</button>
+  <div class="success" id="success">
+    <div class="check-circle">✅</div>
+    <h2>Agendado!</h2>
+    <p>Sua solicitação foi enviada para Lacerda pelo WhatsApp. Aguarde a confirmação.</p>
+    <div class="confirm-card">
+      <div class="row"><span class="lbl">Data</span><span class="val" id="s-data"></span></div>
+      <div class="row"><span class="lbl">Horário</span><span class="val" id="s-hora"></span></div>
+      <div class="row"><span class="lbl">Duração</span><span class="val">2 horas</span></div>
+      <div class="row"><span class="lbl">Consultor</span><span class="val">Lacerda Machado</span></div>
+    </div>
+  </div>
+</div>
+<script>
+const LUIZ='5527996036002';
+const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DIAS_SEMANA=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+const DIAS_DISPONIVEIS=[2,3];
+let hoje=new Date(),mesAtual=hoje.getMonth(),anoAtual=hoje.getFullYear(),diaSel=null,horaSel=null;
+function mudarMes(d){mesAtual+=d;if(mesAtual>11){mesAtual=0;anoAtual++;}if(mesAtual<0){mesAtual=11;anoAtual--;}renderCal();resetSlots();}
+function renderCal(){document.getElementById('mes-titulo').textContent=MESES[mesAtual]+' '+anoAtual;const cal=document.getElementById('cal');cal.innerHTML='';const primeiroDia=new Date(anoAtual,mesAtual,1).getDay();const totalDias=new Date(anoAtual,mesAtual+1,0).getDate();const hojeTs=new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()).getTime();for(let i=0;i<primeiroDia;i++){var el=document.createElement('div');el.className='day empty';cal.appendChild(el);}for(let d=1;d<=totalDias;d++){var data=new Date(anoAtual,mesAtual,d);var dow=data.getDay();var ts=data.getTime();var el=document.createElement('div');el.textContent=d;var classes=['day'];if(ts<hojeTs){classes.push('past');}else if(DIAS_DISPONIVEIS.indexOf(dow)!==-1){classes.push('available');(function(dia,dataObj){el.addEventListener('click',function(){selDia(dia,dataObj);});})(d,data);}if(data.getFullYear()===hoje.getFullYear()&&data.getMonth()===hoje.getMonth()&&d===hoje.getDate()){classes.push('today-mark');}el.className=classes.join(' ');cal.appendChild(el);}}
+function selDia(dia,dataObj){diaSel=dataObj;horaSel=null;document.querySelectorAll('.day.available').forEach(function(el){el.classList.remove('selected');if(parseInt(el.textContent)===dia&&dataObj.getMonth()===mesAtual){el.classList.add('selected');}});var nomeDia=DIAS_SEMANA[dataObj.getDay()];var str=nomeDia.charAt(0).toUpperCase()+nomeDia.slice(1)+', '+String(dia).padStart(2,'0')+'/'+String(mesAtual+1).padStart(2,'0')+'/'+anoAtual;document.getElementById('data-selecionada').textContent=str;document.getElementById('slot-9').classList.remove('selected');document.getElementById('slot-15').classList.remove('selected');document.getElementById('slots-wrap').style.display='block';document.getElementById('resumo').classList.remove('show');document.getElementById('btn-confirm').classList.remove('show');}
+function selSlot(hora){horaSel=hora;document.getElementById('slot-9').classList.remove('selected');document.getElementById('slot-15').classList.remove('selected');document.getElementById('slot-'+hora).classList.add('selected');var fim=hora===9?'11:00':'17:00';var horaStr=String(hora).padStart(2,'0')+':00 às '+fim;var nomeDia=DIAS_SEMANA[diaSel.getDay()];var d=diaSel.getDate();var m=diaSel.getMonth()+1;var a=diaSel.getFullYear();var dataStr=nomeDia.charAt(0).toUpperCase()+nomeDia.slice(1)+', '+String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0')+'/'+a;document.getElementById('r-data').textContent=dataStr;document.getElementById('r-hora').textContent=horaStr;document.getElementById('resumo').classList.add('show');document.getElementById('btn-confirm').classList.add('show');}
+function resetSlots(){diaSel=null;horaSel=null;document.getElementById('slots-wrap').style.display='none';document.getElementById('resumo').classList.remove('show');document.getElementById('btn-confirm').classList.remove('show');}
+function confirmar(){var d=diaSel.getDate();var m=diaSel.getMonth()+1;var a=diaSel.getFullYear();var nomeDia=DIAS_SEMANA[diaSel.getDay()];var dataStr=nomeDia.charAt(0).toUpperCase()+nomeDia.slice(1)+', '+String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0')+'/'+a;var fim=horaSel===9?'11:00':'17:00';var horaStr=String(horaSel).padStart(2,'0')+':00 às '+fim;var msg='📅 *SOLICITAÇÃO DE AGENDAMENTO*
+
+Olá, Lacerda! Gostaria de agendar minha Sessão de Diagnóstico de Marketing:
+
+📅 Data: '+dataStr+'
+⏰ Horário: '+horaStr+'
+⏱ Duração: 2 horas
+
+Aguardo sua confirmação!';document.getElementById('s-data').textContent=dataStr;document.getElementById('s-hora').textContent=horaStr;document.querySelector('.hint-box').style.display='none';document.querySelector('.month-nav').style.display='none';document.querySelector('.weekdays').style.display='none';document.getElementById('cal').style.display='none';document.getElementById('slots-wrap').style.display='none';document.getElementById('resumo').classList.remove('show');document.getElementById('btn-confirm').classList.remove('show');document.getElementById('success').classList.add('show');window.open('https://wa.me/'+LUIZ+'?text='+encodeURIComponent(msg),'_blank');}
+renderCal();
+</script>
+</body>
+</html>
